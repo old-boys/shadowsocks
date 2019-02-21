@@ -11,9 +11,6 @@ import traceback
 from shadowsocks import common, shell, lru_cache
 from configloader import load_config, get_config
 import importloader
-import platform
-import datetime
-import fcntl
 
 
 switchrule = None
@@ -52,8 +49,6 @@ class WebTransfer(object):
     def update_all_user(self, dt_transfer):
         global webapi
 
-        update_transfer = {}
-
         alive_user_count = 0
         bandwidth_thistime = 0
 
@@ -63,7 +58,6 @@ class WebTransfer(object):
                 continue
             data.append({'u': dt_transfer[id][0], 'd': dt_transfer[
                         id][1], 'user_id': self.port_uid_table[id]})
-            update_transfer[id] = dt_transfer[id]
         webapi.postApi('users/traffic',
                        {'node_id': get_config().NODE_ID},
                        {'data': data})
@@ -94,8 +88,6 @@ class WebTransfer(object):
         webapi.postApi('users/detectlog',
                        {'node_id': get_config().NODE_ID},
                        {'data': data})
-
-        return update_transfer
 
     def uptime(self):
         with open('/proc/uptime', 'r') as f:
@@ -167,10 +159,9 @@ class WebTransfer(object):
         self.node_offset = int(nodeinfo['node_offset'])
 
         if get_config().NODE_CUSTOM_OBFS == 1:
-            self.ss_method = nodeinfo[7]
-            self.ss_protocol = nodeinfo[8]
-            self.ss_obfs = nodeinfo[9]
-
+            self.ss_method = nodeinfo['ss_method']
+            self.ss_protocol = nodeinfo['ss_protocol']
+            self.ss_obfs = nodeinfo['ss_obfs']
 
         if nodeinfo['sort'] == 10:
             self.is_relay = True
