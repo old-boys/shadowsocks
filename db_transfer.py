@@ -159,14 +159,6 @@ class DbTransfer(object):
                     get_config().NODE_ID) + "','" + str(self.port_uid_table[id]) + "', '" + str(ip) + "', unix_timestamp())")
                 cur.close()
 
-        detect_log_list = ServerPool.get_instance().get_servers_detect_log()
-        for port in detect_log_list.keys():
-            for rule_id in detect_log_list[port]:
-                cur = conn.cursor()
-                cur.execute("INSERT INTO `detect_log` (`id`, `user_id`, `list_id`, `datetime`, `node_id`) VALUES (NULL, '" + str(
-                    self.port_uid_table[port]) + "', '" + str(rule_id) + "', UNIX_TIMESTAMP(), '" + str(get_config().NODE_ID) + "')")
-                cur.close()
-
 
         conn.close()
         return update_transfer

@@ -79,16 +79,6 @@ class WebTransfer(object):
                        {'node_id': get_config().NODE_ID},
                        {'data': data})
 
-        detect_log_list = ServerPool.get_instance().get_servers_detect_log()
-        data = []
-        for port in detect_log_list.keys():
-            for rule_id in detect_log_list[port]:
-                data.append({'list_id': rule_id,
-                             'user_id': self.port_uid_table[port]})
-        webapi.postApi('users/detectlog',
-                       {'node_id': get_config().NODE_ID},
-                       {'data': data})
-
     def uptime(self):
         with open('/proc/uptime', 'r') as f:
             return float(f.readline().split()[0])

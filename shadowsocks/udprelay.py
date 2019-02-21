@@ -174,12 +174,9 @@ class UDPRelay(object):
 
         self.connected_iplist = []
         self.wrong_iplist = {}
-        self.detect_log_list = []
 
         self.is_cleaning_connected_iplist = False
         self.is_cleaning_wrong_iplist = False
-        self.is_cleaning_detect_log = False
-        self.is_cleaning_mu_detect_log_list = False
         self.is_cleaning_mu_connected_iplist = False
 
         if 'users_table' in self._config:
@@ -188,7 +185,6 @@ class UDPRelay(object):
         self.mu_server_transfer_ul = {}
         self.mu_server_transfer_dl = {}
         self.mu_connected_iplist = {}
-        self.mu_detect_log_list = {}
 
         self.is_pushing_detect_hex_list = False
         self.is_pushing_detect_text_list = False
@@ -495,8 +491,6 @@ class UDPRelay(object):
                         self.mu_server_transfer_dl[uid] = 0
                     if uid not in self.mu_connected_iplist:
                         self.mu_connected_iplist[uid] = []
-                    if uid not in self.mu_detect_log_list:
-                        self.mu_detect_log_list[uid] = []
 
                     if common.getRealIp(r_addr[0]) not in self.mu_connected_iplist[uid]:
                         self.mu_connected_iplist[uid].append(common.getRealIp(r_addr[0]))
@@ -636,13 +630,6 @@ class UDPRelay(object):
                         if common.match_regex(
                                 self.detect_text_list[id]['regex'],
                                 str(data)):
-                            if self._config['is_multi_user'] != 0 and uid != 0:
-                                if self.is_cleaning_mu_detect_log_list == False and id not in self.mu_detect_log_list[
-                                        uid]:
-                                    self.mu_detect_log_list[uid].append(id)
-                            else:
-                                if self.is_cleaning_detect_log == False and id not in self.detect_log_list:
-                                    self.detect_log_list.append(id)
                             raise Exception(
                                 'This connection match the regex: id:%d was reject,regex: %s ,connecting %s:%d from %s:%d via port %d' %
                                 (self.detect_text_list[id]['id'],
@@ -657,13 +644,6 @@ class UDPRelay(object):
                         if common.match_regex(
                                 self.detect_hex_list[id]['regex'],
                                 binascii.hexlify(data)):
-                            if self._config['is_multi_user'] != 0 and uid != 0:
-                                if self.is_cleaning_mu_detect_log_list == False and id not in self.mu_detect_log_list[
-                                        uid]:
-                                    self.mu_detect_log_list[uid].append(id)
-                            else:
-                                if self.is_cleaning_detect_log == False and id not in self.detect_log_list:
-                                    self.detect_log_list.append(id)
                             raise Exception(
                                 'This connection match the regex: id:%d was reject,regex: %s ,connecting %s:%d from %s:%d via port %d' %
                                 (self.detect_hex_list[id]['id'],
@@ -978,17 +958,6 @@ class UDPRelay(object):
         self.wrong_iplist = temp_new_list.copy()
 
         self.is_cleaning_wrong_iplist = True
-
-    def detect_log_list_clean(self):
-        self.is_cleaning_detect_log = True
-        del self.detect_log_list[:]
-        self.is_cleaning_detect_log = False
-
-    def mu_detect_log_list_clean(self):
-        self.is_cleaning_mu_detect_log_list = True
-        for id in self.mu_detect_log_list:
-            del self.mu_detect_log_list[id][:]
-        self.is_cleaning_mu_detect_log_list = False
 
     def reset_single_multi_user_traffic(self, user_id):
         if user_id in self.mu_server_transfer_ul:

@@ -289,8 +289,6 @@ class TCPRelayHandler(object):
                 self._server.mu_server_transfer_dl[self._current_user_id] = 0
             if self._current_user_id not in self._server.mu_connected_iplist:
                 self._server.mu_connected_iplist[self._current_user_id] = []
-            if self._current_user_id not in self._server.mu_detect_log_list:
-                self._server.mu_detect_log_list[self._current_user_id] = []
 
     def _update_activity(self, data_len=0):
         # tell the TCP Relay we have activities recently
@@ -845,15 +843,6 @@ class TCPRelayHandler(object):
                     for id in self._server.detect_text_list:
                         if common.match_regex(
                                 self._server.detect_text_list[id]['regex'], str(data)):
-                            if self._config[
-                                    'is_multi_user'] != 0 and self._current_user_id != 0:
-                                if self._server.is_cleaning_mu_detect_log_list == False and id not in self._server.mu_detect_log_list[
-                                        self._current_user_id]:
-                                    self._server.mu_detect_log_list[
-                                        self._current_user_id].append(id)
-                            else:
-                                if self._server.is_cleaning_detect_log == False and id not in self._server.detect_log_list:
-                                    self._server.detect_log_list.append(id)
                             self._handle_detect_rule_match(remote_port)
                             raise Exception(
                                 'This connection match the regex: id:%d was reject,regex: %s ,%s connecting %s:%d from %s:%d via port %d' %
@@ -870,15 +859,6 @@ class TCPRelayHandler(object):
                         if common.match_regex(
                                 self._server.detect_hex_list[id]['regex'],
                                 binascii.hexlify(data)):
-                            if self._config[
-                                    'is_multi_user'] != 0 and self._current_user_id != 0:
-                                if self._server.is_cleaning_mu_detect_log_list == False and id not in self._server.mu_detect_log_list[
-                                        self._current_user_id]:
-                                    self._server.mu_detect_log_list[
-                                        self._current_user_id].append(id)
-                            else:
-                                if self._server.is_cleaning_detect_log == False and id not in self._server.detect_log_list:
-                                    self._server.detect_log_list.append(id)
                             self._handle_detect_rule_match(remote_port)
                             raise Exception(
                                 'This connection match the regex: id:%d was reject,regex: %s ,connecting %s:%d from %s:%d via port %d' %
@@ -1711,8 +1691,6 @@ class TCPRelay(object):
         self.is_cleaning_mu_connected_iplist = False
         self.wrong_iplist = {}
         self.is_cleaning_wrong_iplist = False
-        self.detect_log_list = []
-        self.mu_detect_log_list = {}
 
         self.mu_speed_tester_u = {}
         self.mu_speed_tester_d = {}
@@ -1748,9 +1726,6 @@ class TCPRelay(object):
 
                 self.mu_speed_tester_u[id] = SpeedTester(bandwidth)
                 self.mu_speed_tester_d[id] = SpeedTester(bandwidth)
-
-        self.is_cleaning_detect_log = False
-        self.is_cleaning_mu_detect_log_list = False
 
         self.is_pushing_detect_hex_list = False
         self.is_pushing_detect_text_list = False
@@ -2079,21 +2054,10 @@ class TCPRelay(object):
 
         self.is_cleaning_wrong_iplist = False
 
-    def detect_log_list_clean(self):
-        self.is_cleaning_detect_log = True
-        del self.detect_log_list[:]
-        self.is_cleaning_detect_log = False
-
     def push_relay_rules(self, rules):
         self.is_pushing_relay_rules = True
         self.relay_rules = rules.copy()
         self.is_pushing_relay_rules = False
-
-    def mu_detect_log_list_clean(self):
-        self.is_cleaning_mu_detect_log_list = True
-        for id in self.mu_detect_log_list:
-            del self.mu_detect_log_list[id][:]
-        self.is_cleaning_mu_detect_log_list = False
 
     def reset_single_multi_user_traffic(self, user_id):
         self.mu_reset_time[user_id] = time.time()
