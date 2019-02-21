@@ -37,6 +37,10 @@ class WebTransfer(object):
 
         self.mu_only = False
         self.node_offset = 0
+        self.ss_method = ''
+        self.ss_protocol = ''
+        self.ss_obfs = ''
+
         self.is_relay = False
 
         self.relay_rule_list = {}
@@ -91,63 +95,6 @@ class WebTransfer(object):
                        {'node_id': get_config().NODE_ID},
                        {'data': data})
 
-        deny_str = ""
-        data = []
-        if platform.system() == 'Linux' and get_config().ANTISSATTACK == 1:
-            wrong_iplist = ServerPool.get_instance().get_servers_wrong()
-            server_ip = socket.gethostbyname(get_config().MYSQL_HOST)
-            for id in wrong_iplist.keys():
-                for ip in wrong_iplist[id]:
-                    realip = ""
-                    is_ipv6 = False
-                    if common.is_ip(ip):
-                        if(common.is_ip(ip) == socket.AF_INET):
-                            realip = ip
-                        else:
-                            if common.match_ipv4_address(ip) is not None:
-                                realip = common.match_ipv4_address(ip)
-                            else:
-                                is_ipv6 = True
-                                realip = ip
-                    else:
-                        continue
-
-                    if str(realip).find(str(server_ip)) != -1:
-                        continue
-
-                    has_match_node = False
-                    for node_ip in self.node_ip_list:
-                        if str(realip).find(node_ip) != -1:
-                            has_match_node = True
-                            continue
-
-                    if has_match_node:
-                        continue
-
-                    if get_config().CLOUDSAFE == 1:
-                        data.append({'ip': realip})
-                    else:
-                        if not is_ipv6:
-                            os.system(
-                                'route add -host %s gw 127.0.0.1' %
-                                str(realip))
-                            deny_str = deny_str + "\nALL: " + str(realip)
-                        else:
-                            os.system(
-                                'ip -6 route add ::1/128 via %s/128' %
-                                str(realip))
-                            deny_str = deny_str + \
-                                "\nALL: [" + str(realip) + "]/128"
-
-                        logging.info("Local Block ip:" + str(realip))
-                if get_config().CLOUDSAFE == 0:
-                    deny_file = open('/etc/hosts.deny', 'a')
-                    fcntl.flock(deny_file.fileno(), fcntl.LOCK_EX)
-                    deny_file.write(deny_str)
-                    deny_file.close()
-            webapi.postApi('func/block_ip',
-                           {'node_id': get_config().NODE_ID},
-                           {'data': data})
         return update_transfer
 
     def uptime(self):
@@ -219,6 +166,12 @@ class WebTransfer(object):
         self.mu_only = nodeinfo['mu_only']
         self.node_offset = int(nodeinfo['node_offset'])
 
+        if get_config().NODE_CUSTOM_OBFS == 1:
+            self.ss_method = nodeinfo[7]
+            self.ss_protocol = nodeinfo[8]
+            self.ss_obfs = nodeinfo[9]
+
+
         if nodeinfo['sort'] == 10:
             self.is_relay = True
         else:
@@ -270,6 +223,22 @@ class WebTransfer(object):
                 d['priority'] = int(rule['priority'])
                 self.relay_rule_list[d['id']] = d.copy()
 
+
+        for row in rows:
+            row['port'] = row['port'] + self.node_offset
+
+            if get_config().NODE_CUSTOM_OBFS == 1 :
+                if self.ss_method:
+                    row['method'] = self.ss_method
+                if self.ss_protocol:
+                    row['protocol'] = self.ss_protocol
+                if self.ss_obfs:
+                    row['obfs'] = self.ss_obfs
+
+                if row['obfs'] == "plain" and row['is_multi_user'] == 2:
+                    row['obfs_param'] = ""
+                    #logging.error('obfs: %s obfs_param: %s' % (row['obfs'], row['obfs_param'] ))
+
         return rows
 
     def cmp(self, val1, val2):
@@ -296,6 +265,10 @@ class WebTransfer(object):
         self.mu_port_list = []
 
         for row in rows:
+
+            self.port_uid_table[row['port']] = row['id']
+            self.uid_port_table[row['id']] = row['port']
+
             if row['is_multi_user'] != 0:
                 self.mu_port_list.append(int(row['port']))
                 continue
@@ -313,10 +286,6 @@ class WebTransfer(object):
                 md5_users[row['id']]['forbidden_port'] = ''
             md5_users[row['id']]['md5'] = common.get_md5(
                 str(row['id']) + row['passwd'] + row['method'] + row['obfs'] + row['protocol'])
-
-        for row in rows:
-            self.port_uid_table[row['port']] = row['id']
-            self.uid_port_table[row['id']] = row['port']
 
         if self.mu_only == 1:
             i = 0

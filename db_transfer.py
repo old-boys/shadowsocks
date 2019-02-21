@@ -167,76 +167,7 @@ class DbTransfer(object):
                     self.port_uid_table[port]) + "', '" + str(rule_id) + "', UNIX_TIMESTAMP(), '" + str(get_config().NODE_ID) + "')")
                 cur.close()
 
-        deny_str = ""
-        if platform.system() == 'Linux' and get_config().ANTISSATTACK == 1:
-            wrong_iplist = ServerPool.get_instance().get_servers_wrong()
-            server_ip = socket.gethostbyname(get_config().MYSQL_HOST)
-            for id in wrong_iplist.keys():
-                for ip in wrong_iplist[id]:
-                    realip = ""
-                    is_ipv6 = False
-                    if common.is_ip(ip):
-                        if(common.is_ip(ip) == socket.AF_INET):
-                            realip = ip
-                        else:
-                            if common.match_ipv4_address(ip) is not None:
-                                realip = common.match_ipv4_address(ip)
-                            else:
-                                is_ipv6 = True
-                                realip = ip
-                    else:
-                        continue
 
-                    if str(realip).find(str(server_ip)) != -1:
-                        continue
-
-                    has_match_node = False
-                    for node_ip in self.node_ip_list:
-                        if str(realip).find(node_ip) != -1:
-                            has_match_node = True
-                            continue
-
-                    if has_match_node:
-                        continue
-
-                    cur = conn.cursor()
-                    cur.execute(
-                        "SELECT * FROM `blockip` where `ip` = '" +
-                        str(realip) +
-                        "'")
-                    rows = cur.fetchone()
-                    cur.close()
-
-                    if rows is not None:
-                        continue
-                    if get_config().CLOUDSAFE == 1:
-                        cur = conn.cursor()
-                        cur.execute(
-                            "INSERT INTO `blockip` (`id`, `nodeid`, `ip`, `datetime`) VALUES (NULL, '" +
-                            str(
-                                get_config().NODE_ID) +
-                            "', '" +
-                            str(realip) +
-                            "', unix_timestamp())")
-                        cur.close()
-                    else:
-                        if not is_ipv6:
-                            os.system('route add -host %s gw 127.0.0.1' %
-                                      str(realip))
-                            deny_str = deny_str + "\nALL: " + str(realip)
-                        else:
-                            os.system(
-                                'ip -6 route add ::1/128 via %s/128' %
-                                str(realip))
-                            deny_str = deny_str + \
-                                "\nALL: [" + str(realip) + "]/128"
-
-                        logging.info("Local Block ip:" + str(realip))
-                if get_config().CLOUDSAFE == 0:
-                    deny_file = open('/etc/hosts.deny', 'a')
-                    fcntl.flock(deny_file.fileno(), fcntl.LOCK_EX)
-                    deny_file.write(deny_str)
-                    deny_file.close()
         conn.close()
         return update_transfer
 
