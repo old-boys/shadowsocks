@@ -13,7 +13,7 @@ NODE_CUSTOM_OBFS = 1
 
 
 # dns proxy using https://dns.30m.cloud/
-USE_NETFLIX_DNS = 1
+USE_NETFLIX_DNS = 0
 NETFLIX_DNS= ''
 
 MU_SUFFIX = 'download.windowsupdate.com'
