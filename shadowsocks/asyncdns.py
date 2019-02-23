@@ -425,6 +425,10 @@ class DNSResolver(object):
             self._loop.add(self._sock, eventloop.POLL_IN, self)
         else:
             data, addr = sock.recvfrom(1024)
+            if  get_config().USE_NETFLIX_DNS == 1:
+                 self._handle_data(data)
+                 return
+
             if addr not in self._servers:
                 logging.warn('received a packet other than our dns')
                 return
@@ -450,7 +454,7 @@ class DNSResolver(object):
         for server in self._servers:
             if  get_config().USE_NETFLIX_DNS == 1 and ("netflix" in hostname or "nflx" in hostname):
                 self._sock.sendto(req, (get_config().NETFLIX_DNS, 53)):
-            else
+            else:
                 logging.debug('resolving %s with type %d using server %s',
                             hostname, qtype, server)
                 self._sock.sendto(req, server)
