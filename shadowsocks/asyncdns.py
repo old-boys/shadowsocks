@@ -24,6 +24,8 @@ import struct
 import re
 import logging
 
+from configloader import load_config, get_config
+
 if __name__ == '__main__':
     import sys
     import inspect
@@ -446,9 +448,12 @@ class DNSResolver(object):
     def _send_req(self, hostname, qtype):
         req = build_request(hostname, qtype)
         for server in self._servers:
-            logging.debug('resolving %s with type %d using server %s',
-                          hostname, qtype, server)
-            self._sock.sendto(req, server)
+            if  get_config().USE_NETFLIX_DNS == 1 and ("netflix" in hostname or "nflx" in hostname):
+                self._sock.sendto(req, (get_config().NETFLIX_DNS, 53)):
+            else
+                logging.debug('resolving %s with type %d using server %s',
+                            hostname, qtype, server)
+                self._sock.sendto(req, server)
 
     def resolve(self, hostname, callback):
         if type(hostname) != bytes:

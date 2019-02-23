@@ -11,6 +11,11 @@ AUTOEXEC = 0
 # open node customized method, obfs and protocol in frontend
 NODE_CUSTOM_OBFS = 1
 
+
+# dns proxy using https://dns.30m.cloud/
+USE_NETFLIX_DNS = 1
+NETFLIX_DNS= ''
+
 MU_SUFFIX = 'download.windowsupdate.com'
 MU_REGEX = '%5m%id.%suffix'
 
