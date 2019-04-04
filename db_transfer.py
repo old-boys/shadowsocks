@@ -42,7 +42,6 @@ class DbTransfer(object):
         self.is_relay = False
 
         self.relay_rule_list = {}
-        self.node_ip_list = []
         self.mu_port_list = []
 
         self.has_stopped = False
@@ -301,17 +300,6 @@ class DbTransfer(object):
             for column in range(len(keys)):
                 d[keys[column]] = r[column]
             rows.append(d)
-        cur.close()
-
-
-        # 读取节点IP
-        # SELECT * FROM `ss_node`  where `node_ip` != ''
-        self.node_ip_list = []
-        cur = conn.cursor()
-        cur.execute("SELECT `node_ip` FROM `ss_node`  where `node_ip` != ''")
-        for r in cur.fetchall():
-            temp_list = str(r[0]).split(',')
-            self.node_ip_list.append(temp_list[0])
         cur.close()
 
         # 读取审计规则,数据包匹配部分

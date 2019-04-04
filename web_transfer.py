@@ -41,7 +41,6 @@ class WebTransfer(object):
         self.is_relay = False
 
         self.relay_rule_list = {}
-        self.node_ip_list = []
         self.mu_port_list = []
 
         self.has_stopped = False
@@ -165,14 +164,6 @@ class WebTransfer(object):
             return rows
 
         rows = data
-
-        # 读取节点IP
-        # SELECT * FROM `ss_node`  where `node_ip` != ''
-        self.node_ip_list = []
-        data = webapi.getApi('nodes')
-        for node in data:
-            temp_list = str(node['node_ip']).split(',')
-            self.node_ip_list.append(temp_list[0])
 
         # 读取审计规则,数据包匹配部分
 
