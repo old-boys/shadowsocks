@@ -452,7 +452,7 @@ class DNSResolver(object):
     def _send_req(self, hostname, qtype):
         req = build_request(hostname, qtype)
         for server in self._servers:
-            if  get_config().USE_NETFLIX_DNS == 1 and ("netflix" in hostname or "nflx" in hostname):
+            if  get_config().USE_NETFLIX_DNS == 1 and ("netflix" in bytes.decode(hostname) or "nflx" in bytes.decode(hostname)):
                 self._sock.sendto(req, (get_config().NETFLIX_DNS, 53))
             else:
                 logging.debug('resolving %s with type %d using server %s',

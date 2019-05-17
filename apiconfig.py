@@ -1,5 +1,5 @@
 ﻿# Config
-NODE_ID = 1
+NODE_ID = ${NODE_ID}
 
 
 # hour,set 0 to disable
@@ -8,24 +8,31 @@ CLOUDSAFE = 0
 ANTISSATTACK = 0
 AUTOEXEC = 0
 
-MU_SUFFIX = 'zhaoj.in'
-MU_REGEX = '%5m%id.%suffix'
+# open node customized method, obfs and protocol in frontend
+NODE_CUSTOM_OBFS = ${NODE_CUSTOM_OBFS}
+
+# netflix dns proxy using https://dns.30m.cloud/
+USE_NETFLIX_DNS = ${USE_NETFLIX_DNS}
+NETFLIX_DNS= '${NETFLIX_DNS}'
+
+MU_SUFFIX = '${MU_SUFFIX}'
+MU_REGEX = '${MU_REGEX}'
 
 SERVER_PUB_ADDR = '127.0.0.1'  # mujson_mgr need this to generate ssr link
-API_INTERFACE = 'glzjinmod'  # glzjinmod, modwebapi
+API_INTERFACE = '${API_INTERFACE}'  # glzjinmod, modwebapi
 
-WEBAPI_URL = 'https://zhaoj.in'
-WEBAPI_TOKEN = 'glzjin'
+WEBAPI_URL = '${WEBAPI_URL}'
+WEBAPI_TOKEN = '${WEBAPI_TOKEN}'
 
 # mudb
 MUDB_FILE = 'mudb.json'
 
 # Mysql
-MYSQL_HOST = '127.0.0.1'
-MYSQL_PORT = 3306
-MYSQL_USER = 'ss'
-MYSQL_PASS = 'ss'
-MYSQL_DB = 'shadowsocks'
+MYSQL_HOST = '${MYSQL_HOST}'
+MYSQL_PORT = ${MYSQL_PORT}
+MYSQL_USER = '${MYSQL_USER}'
+MYSQL_PASS = '${MYSQL_PASS}'
+MYSQL_DB = '${MYSQL_DB}'
 
 MYSQL_SSL_ENABLE = 0
 MYSQL_SSL_CA = ''
