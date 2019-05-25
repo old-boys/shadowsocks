@@ -9,7 +9,7 @@ ANTISSATTACK = 0
 AUTOEXEC = 0
 
 # open node customized method, obfs and protocol in frontend
-NODE_CUSTOM_OBFS = ${NODE_CUSTOM_OBFS}
+NODE_CUSTOM_OBFS = 1
 
 # netflix dns proxy using https://dns.30m.cloud/
 USE_NETFLIX_DNS = ${USE_NETFLIX_DNS}

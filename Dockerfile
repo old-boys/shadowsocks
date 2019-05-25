@@ -10,7 +10,6 @@ ENV NODE_ID=0                     \
     ANTISSATTACK=0                \ 
     MU_SUFFIX=download.windowsupate.com   \ 
     MU_REGEX=%5m%id.%suffix       \
-    NODE_CUSTOM_OBFS=1            \
     USE_NETFLIX_DNS=0             \
     NETFLIX_DNS=                 \
     API_INTERFACE=glzjinmod       \

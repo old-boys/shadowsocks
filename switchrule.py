@@ -18,7 +18,8 @@ def getKeys():
                      'forbidden_ip',
                      'forbidden_port',
                      'disconnect_ip',
-                     'is_multi_user']
+                     'is_multi_user',
+                     'custom_enable']
     return key_list
     # return key_list + ['plan'] # append the column name 'plan'
 

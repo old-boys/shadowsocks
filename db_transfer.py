@@ -243,15 +243,8 @@ class DbTransfer(object):
 
         cur = conn.cursor()
 
-
-        if get_config().NODE_CUSTOM_OBFS == 1:
-            cur.execute("SELECT `node_group`,`node_class`,`node_speedlimit`,`traffic_rate`,`mu_only`,`sort`, `node_offset`,`ss_method`,`ss_protocol`,`ss_obfs` FROM ss_node where `id`='" +
+        cur.execute("SELECT `node_group`,`node_class`,`node_speedlimit`,`traffic_rate`,`mu_only`,`sort`, `node_offset`,`ss_method`,`ss_protocol`,`ss_obfs` FROM ss_node where `id`='" +
                     str(get_config().NODE_ID) + "' AND (`node_bandwidth`<`node_bandwidth_limit` OR `node_bandwidth_limit`=0)")
-        else:
-            cur.execute("SELECT `node_group`,`node_class`,`node_speedlimit`,`traffic_rate`,`mu_only`,`sort`,`node_offset` FROM ss_node where `id`='" +
-                    str(get_config().NODE_ID) + "' AND (`node_bandwidth`<`node_bandwidth_limit` OR `node_bandwidth_limit`=0)")
-
-
 
         nodeinfo = cur.fetchone()
 
@@ -276,10 +269,9 @@ class DbTransfer(object):
 
         self.node_offset = int(nodeinfo[6])
 
-        if get_config().NODE_CUSTOM_OBFS == 1:
-            self.ss_method = nodeinfo[7]
-            self.ss_protocol = nodeinfo[8]
-            self.ss_obfs = nodeinfo[9]
+        self.ss_method = nodeinfo[7]
+        self.ss_protocol = nodeinfo[8]
+        self.ss_obfs = nodeinfo[9]
 
         if nodeinfo[0] == 0:
             node_group_sql = ""
@@ -293,7 +285,7 @@ class DbTransfer(object):
                     str(nodeinfo[1]) +
                     " " +
                     node_group_sql +
-                    ") OR `is_admin`=1) AND`enable`=1 AND `expire_in`>now() AND `transfer_enable`>`u`+`d`")
+                    ") OR `is_admin`=1) AND`enable`=1 AND `expire_in`>now() AND `transfer_enable`>`u`+`d` AND `is_multi_user`=0")
         rows = []
         for r in cur.fetchall():
             d = {}
@@ -301,6 +293,28 @@ class DbTransfer(object):
                 d[keys[column]] = r[column]
             rows.append(d)
         cur.close()
+
+        # read single port part
+        cur = conn.cursor()
+        cur.execute("SELECT `ss_method`,`ss_protocol`,`ss_obfs`,`port`,`type`,`node_speedlimit`,`passwd` FROM ss_node_m where `pid`='" +
+                    str(get_config().NODE_ID) + "' AND `enable`=1")
+        m_idx = -1
+        for r in cur.fetchall():
+            d = {}
+            d['id'] = m_idx
+            d['method'] = str(r[0])
+            d['protocol'] = str(r[1])
+            d['obfs'] = str(r[2])
+            d['port'] = int(r[3])
+            d['is_multi_user'] = int(r[4])
+            d['node_speedlimit'] = float(r[5])
+            d['passwd'] = str(r[6])
+            d['obfs_param'] = ''
+            d['protocol_param'] = ''
+            m_idx = m_idx - 1
+            rows.append(d)
+        cur.close()
+        # read single port part end
 
         # 读取审计规则,数据包匹配部分
         keys_detect = ['id', 'regex']
@@ -401,19 +415,22 @@ class DbTransfer(object):
 
 
         for row in rows:
+            if row['obfs'] == "plain" and row['is_multi_user'] == 2:
+                row['obfs_param'] = ""
+                #logging.error('obfs: %s obfs_param: %s' % (row['obfs'], row['obfs_param'] ))
+
+            if row['id'] < 0:
+                continue
+
             row['port'] = row['port'] + self.node_offset
 
-            if get_config().NODE_CUSTOM_OBFS == 1 :
-                if self.ss_method:
-                    row['method'] = self.ss_method
-                if self.ss_protocol:
-                    row['protocol'] = self.ss_protocol
-                if self.ss_obfs:
-                    row['obfs'] = self.ss_obfs
+            if self.ss_method and row['custom_enable'] == 0:
+                row['method'] = self.ss_method
+            if self.ss_protocol and row['custom_enable'] == 0:
+                row['protocol'] = self.ss_protocol
+            if self.ss_obfs and row['custom_enable'] == 0:
+                row['obfs'] = self.ss_obfs
 
-                if row['obfs'] == "plain" and row['is_multi_user'] == 2:
-                    row['obfs_param'] = ""
-                    #logging.error('obfs: %s obfs_param: %s' % (row['obfs'], row['obfs_param'] ))
 
         return rows
 
