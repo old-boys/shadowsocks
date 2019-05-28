@@ -296,22 +296,21 @@ class DbTransfer(object):
 
         # read single port part
         cur = conn.cursor()
-        cur.execute("SELECT `ss_method`,`ss_protocol`,`ss_obfs`,`port`,`type`,`node_speedlimit`,`passwd` FROM ss_node_m where `pid`='" +
+        cur.execute("SELECT `id`,`ss_method`,`ss_protocol`,`ss_obfs`,`port`,`type`,`node_speedlimit`,`passwd` FROM ss_node_m where `pid`='" +
                     str(get_config().NODE_ID) + "' AND `enable`=1")
-        m_idx = -1
+
         for r in cur.fetchall():
             d = {}
-            d['id'] = m_idx
-            d['method'] = str(r[0])
-            d['protocol'] = str(r[1])
-            d['obfs'] = str(r[2])
-            d['port'] = int(r[3])
-            d['is_multi_user'] = int(r[4])
-            d['node_speedlimit'] = float(r[5])
-            d['passwd'] = str(r[6])
+            d['id'] = 0 - int(r[0])
+            d['method'] = str(r[1])
+            d['protocol'] = str(r[2])
+            d['obfs'] = str(r[3])
+            d['port'] = int(r[4])
+            d['is_multi_user'] = int(r[5])
+            d['node_speedlimit'] = float(r[6])
+            d['passwd'] = str(r[7])
             d['obfs_param'] = ''
             d['protocol_param'] = ''
-            m_idx = m_idx - 1
             rows.append(d)
         cur.close()
         # read single port part end
