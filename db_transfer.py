@@ -412,24 +412,12 @@ class DbTransfer(object):
 
         conn.close()
 
-
         for row in rows:
-            if row['obfs'] == "plain" and row['is_multi_user'] == 2:
-                row['obfs_param'] = ""
-                #logging.error('obfs: %s obfs_param: %s' % (row['obfs'], row['obfs_param'] ))
-
+        
             if row['id'] < 0:
                 continue
 
             row['port'] = row['port'] + self.node_offset
-
-            if self.ss_method and row['custom_enable'] == 0:
-                row['method'] = self.ss_method
-            if self.ss_protocol and row['custom_enable'] == 0:
-                row['protocol'] = self.ss_protocol
-            if self.ss_obfs and row['custom_enable'] == 0:
-                row['obfs'] = self.ss_obfs
-
 
         return rows
 
@@ -524,6 +512,17 @@ class DbTransfer(object):
             for name in read_config_keys:
                 if name in row and row[name]:
                     cfg[name] = row[name]
+
+	    if self.ss_method and row['id'] > 0 and row['custom_enable'] == 0:
+                cfg['method'] = self.ss_method
+            if self.ss_protocol and row['id'] > 0 and row['custom_enable'] == 0:
+                cfg['protocol'] = self.ss_protocol
+            if self.ss_obfs and row['id'] > 0 and row['custom_enable'] == 0:
+                cfg['obfs'] = self.ss_obfs
+
+	    if cfg['obfs'] == "plain" and cfg['is_multi_user'] == 2:
+                cfg['obfs_param'] = ""
+                #logging.error('obfs: %s obfs_param: %s' % (row['obfs'], row['obfs_param'] ))
 
             merge_config_keys = ['password'] + read_config_keys
             for name in cfg.keys():
