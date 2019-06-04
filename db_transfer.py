@@ -513,14 +513,14 @@ class DbTransfer(object):
                 if name in row and row[name]:
                     cfg[name] = row[name]
 
-        if self.ss_method and row['id'] > 0 and row['custom_enable'] == 0:
-                cfg['method'] = self.ss_method
-        if self.ss_protocol and row['id'] > 0 and row['custom_enable'] == 0:
-            cfg['protocol'] = self.ss_protocol
-        if self.ss_obfs and row['id'] > 0 and row['custom_enable'] == 0:
-            cfg['obfs'] = self.ss_obfs
+            if self.ss_method and row['id'] > 0 and row['custom_enable'] == 0:
+                    cfg['method'] = self.ss_method
+            if self.ss_protocol and row['id'] > 0 and row['custom_enable'] == 0:
+                cfg['protocol'] = self.ss_protocol
+            if self.ss_obfs and row['id'] > 0 and row['custom_enable'] == 0:
+                cfg['obfs'] = self.ss_obfs
 
-	    if cfg['obfs'] == "plain" and cfg['is_multi_user'] == 2:
+            if cfg['obfs'] == "plain" and cfg['is_multi_user'] == 2:
                 cfg['obfs_param'] = ""
                 #logging.error('obfs: %s obfs_param: %s' % (row['obfs'], row['obfs_param'] ))
 
