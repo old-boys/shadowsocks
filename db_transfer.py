@@ -396,8 +396,8 @@ class DbTransfer(object):
             cur = conn.cursor()
             cur.execute("SELECT " +
                         ','.join(keys_detect) +
-                        " FROM relay where `source_node_id` = 0 or `source_node_id` = " +
-                        str(get_config().NODE_ID))
+                        " FROM relay WHERE (`source_node_id` = 0 or `source_node_id` = " +
+                        str(get_config().NODE_ID) + ") AND `status`=1")
 
             for r in cur.fetchall():
                 d = {}
