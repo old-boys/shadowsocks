@@ -451,13 +451,16 @@ class DNSResolver(object):
 
     def _send_req(self, hostname, qtype):
         req = build_request(hostname, qtype)
+        if  get_config().USE_NETFLIX_DNS == 1:
+            for mhost in get_config().UNLOCK_HOST:
+                if mhost in bytes.decode(hostname):
+                    #logging.error('456 hit hosts: %s', hostname)
+                    self._sock.sendto(req, (get_config().NETFLIX_DNS, 53))
+                    return
         for server in self._servers:
-            if  get_config().USE_NETFLIX_DNS == 1 and ("netflix" in bytes.decode(hostname) or "nflx" in bytes.decode(hostname)):
-                self._sock.sendto(req, (get_config().NETFLIX_DNS, 53))
-            else:
-                logging.debug('resolving %s with type %d using server %s',
-                            hostname, qtype, server)
-                self._sock.sendto(req, server)
+            logging.debug('resolving %s with type %d using server %s',
+                        hostname, qtype, server)
+            self._sock.sendto(req, server)
 
     def resolve(self, hostname, callback):
         if type(hostname) != bytes:
