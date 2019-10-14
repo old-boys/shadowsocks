@@ -47,7 +47,7 @@ API_TOKEN = 'abcdef'
 API_UPDATE_TIME = 60
 
 # unlock host
-UNLOCKs_HOST =  ["netflix", "nflx", "dmm", "abema", "ameblo", "ameba", "bucketeer", "amebame", "hayabusa", "akamaized", 'a-i-ad', 'wovn']
+UNLOCK_HOST =  ["netflix", "nflx", "dmm", "abema", "ameblo", "ameba", "bucketeer", "amebame", "hayabusa", "akamaized", 'a-i-ad', 'wovn']
 
 # Manager (ignore this)
 MANAGE_PASS = 'ss233333333'
