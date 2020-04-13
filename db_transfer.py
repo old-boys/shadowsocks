@@ -297,7 +297,7 @@ class DbTransfer(object):
         # read single port part
         cur = conn.cursor()
         cur.execute("SELECT `id`,`ss_method`,`ss_protocol`,`ss_obfs`,`port`,`type`,`node_speedlimit`,`passwd` FROM ss_node_m where `pid`='" +
-                    str(get_config().NODE_ID) + "' AND `enable`=1")
+                    str(get_config().NODE_ID) + "' AND `enable`=1 AND `support`<4")
 
         for r in cur.fetchall():
             d = {}
