@@ -1,5 +1,5 @@
 ﻿# Config
-NODE_ID = 1
+NODE_ID = 12
 
 
 # hour,set 0 to disable
@@ -28,11 +28,11 @@ WEBAPI_TOKEN = 'glzjin'
 MUDB_FILE = 'mudb.json'
 
 # Mysql
-MYSQL_HOST = '127.0.0.1'
+MYSQL_HOST = '47.22.30.12'
 MYSQL_PORT = 3306
-MYSQL_USER = 'ss'
-MYSQL_PASS = 'ss'
-MYSQL_DB = 'shadowsocks'
+MYSQL_USER = 'scloud'
+MYSQL_PASS = 'scloud'
+MYSQL_DB = 'scloud'
 
 MYSQL_SSL_ENABLE = 0
 MYSQL_SSL_CA = ''

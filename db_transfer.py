@@ -9,7 +9,7 @@ import socket
 from server_pool import ServerPool
 import traceback
 from shadowsocks import common, shell, lru_cache
-from configloader import load_config, get_config
+from configloader import load_config, get_config, get_mconfig
 import importloader
 import datetime
 
@@ -72,11 +72,11 @@ class DbTransfer(object):
                     'key': get_config().MYSQL_SSL_KEY})
         else:
             conn = cymysql.connect(
-                host=get_config().MYSQL_HOST,
-                port=get_config().MYSQL_PORT,
-                user=get_config().MYSQL_USER,
-                passwd=get_config().MYSQL_PASS,
-                db=get_config().MYSQL_DB,
+                host=get_mconfig().MYSQL_HOST,
+                port=get_mconfig().MYSQL_PORT,
+                user=get_mconfig().MYSQL_USER,
+                passwd=get_mconfig().MYSQL_PASS,
+                db=get_mconfig().MYSQL_DB,
                 charset='utf8')
 
         conn.autocommit(True)
@@ -116,18 +116,18 @@ class DbTransfer(object):
             str(bandwidth_thistime) +
             "' WHERE `id` = " +
             str(
-                get_config().NODE_ID) +
+                get_mconfig().NODE_ID) +
             " ; ")
         cur.close()
 
         cur = conn.cursor()
         cur.execute("INSERT INTO `ss_node_online_log` (`id`, `node_id`, `online_user`, `log_time`) VALUES (NULL, '" +
-                    str(get_config().NODE_ID) + "', '" + str(alive_user_count) + "', unix_timestamp()); ")
+                    str(get_mconfig().NODE_ID) + "', '" + str(alive_user_count) + "', unix_timestamp()); ")
         cur.close()
 
         cur = conn.cursor()
         cur.execute("INSERT INTO `ss_node_info` (`id`, `node_id`, `uptime`, `load`, `log_time`) VALUES (NULL, '" +
-                    str(get_config().NODE_ID) + "', '" + str(self.uptime()) + "', '" + str(self.load()) + "', unix_timestamp()); ")
+                    str(get_mconfig().NODE_ID) + "', '" + str(self.uptime()) + "', '" + str(self.load()) + "', unix_timestamp()); ")
         cur.close()
 
         online_iplist = ServerPool.get_instance().get_servers_iplist()
@@ -135,7 +135,7 @@ class DbTransfer(object):
             for ip in online_iplist[id]:
                 cur = conn.cursor()
                 cur.execute("INSERT INTO `alive_ip` (`id`, `nodeid`,`userid`, `ip`, `datetime`) VALUES (NULL, '" + str(
-                    get_config().NODE_ID) + "','" + str(self.port_uid_table[id]) + "', '" + str(ip) + "', unix_timestamp())")
+                    get_mconfig().NODE_ID) + "','" + str(self.port_uid_table[id]) + "', '" + str(ip) + "', unix_timestamp())")
                 cur.close()
 
 
@@ -233,18 +233,18 @@ class DbTransfer(object):
                     'key': get_config().MYSQL_SSL_KEY})
         else:
             conn = cymysql.connect(
-                host=get_config().MYSQL_HOST,
-                port=get_config().MYSQL_PORT,
-                user=get_config().MYSQL_USER,
-                passwd=get_config().MYSQL_PASS,
-                db=get_config().MYSQL_DB,
+                host=get_mconfig().MYSQL_HOST,
+                port=get_mconfig().MYSQL_PORT,
+                user=get_mconfig().MYSQL_USER,
+                passwd=get_mconfig().MYSQL_PASS,
+                db=get_mconfig().MYSQL_DB,
                 charset='utf8')
         conn.autocommit(True)
 
         cur = conn.cursor()
 
         cur.execute("SELECT `node_group`,`node_class`,`node_speedlimit`,`traffic_rate`,`mu_only`,`sort`, `node_offset`,`ss_method`,`ss_protocol`,`ss_obfs` FROM ss_node where `id`='" +
-                    str(get_config().NODE_ID) + "' AND (`node_bandwidth`<`node_bandwidth_limit` OR `node_bandwidth_limit`=0)")
+                    str(get_mconfig().NODE_ID) + "' AND (`node_bandwidth`<`node_bandwidth_limit` OR `node_bandwidth_limit`=0)")
 
         nodeinfo = cur.fetchone()
 
@@ -297,7 +297,7 @@ class DbTransfer(object):
         # read single port part
         cur = conn.cursor()
         cur.execute("SELECT `id`,`ss_method`,`ss_protocol`,`ss_obfs`,`port`,`type`,`node_speedlimit`,`passwd` FROM ss_node_m where `pid`='" +
-                    str(get_config().NODE_ID) + "' AND `enable`=1 AND `support`<4")
+                    str(get_mconfig().NODE_ID) + "' AND `enable`=1 AND `support`<4")
 
         for r in cur.fetchall():
             d = {}
@@ -397,7 +397,7 @@ class DbTransfer(object):
             cur.execute("SELECT " +
                         ','.join(keys_detect) +
                         " FROM relay WHERE (`source_node_id` = 0 or `source_node_id` = " +
-                        str(get_config().NODE_ID) + ") AND `status`=1")
+                        str(get_mconfig().NODE_ID) + ") AND `status`=1")
 
             for r in cur.fetchall():
                 d = {}
